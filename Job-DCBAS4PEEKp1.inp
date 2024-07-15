@@ -34738,7 +34738,7 @@
 **		   	( G )
 **		Poisson ratio            ( NU )
 ** Coordinates: x, y
-*User element, nodes=4, type=U1, properties=9, coordinates=2
+*User element, nodes=4, type=U1, properties=5, coordinates=2
 1,2
 ***************************************************************
 *Element, type=U1
@@ -101502,9 +101502,9 @@
  *Elset, elset=elDummy ,generate
 1000001, 1033331, 1
  *Uel property, elset=U1
-122700.,10100.,5500, 0.25,1,   1e-07, 33331, 4, 3
+122700.,10100.,5500, 0.25,1,   1e-07
 *Uel property, elset=U2
-4100.,4100.,1511.8, 0.356,1,   1e-07, 33331, 4, 3
+4100.,4100.,1511.8, 0.356,1,   1e-07
 *Solid section, elset=elDummy, material=Dummy
 *End Instance
 **  
@@ -101516,8 +101516,6 @@
 *Material, name=Dummy
 *Elastic
 1.e-20
-*User output variables
-6
 ** ----------------------------------------------------------------
 ** 
 ** STEP: Step-1
@@ -101543,14 +101541,7 @@ DOWN, 2, 2, -1.
 ** 
 ** FIELD OUTPUT: F-Output-1
 ** 
-*Output, field
-*node output
-U,RF
-** 
-** specify the user-defined output for the dummy element set
-*element output, elset=AS4PEEK-1.elDummy
-
-uvarm,E,S
+*Output, field, variable=PRESELECT
 ** 
 ** HISTORY OUTPUT: H-Output-1
 ** 

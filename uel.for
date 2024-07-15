@@ -11,41 +11,7 @@
 ! -----------------------------------------------------------------------
 !         Date                Programmer
 !      2024/05/30               L. Min
-!________________________________________________________________________  
-      module global_parameters
-      !! post-processing related variables
-      ! no of total user elements and offset for overlaying elements
-      integer :: numElem
-
-      real(8), allocatable:: globalPostVars(:,:,:)
-      end module global_parameters
-	  
-       subroutine UVARM(UVAR,DIRECT,T,TIME,DTIME,CMNAME,ORNAME,
-     & NUVARM,NOEL,NPT,LAYER,KSPT,KSTEP,KINC,NDI,NSHR,COORD,
-     & JMAC,JMATYP,MATLAYO,LACCFLA)
-
-      ! this subroutine is used to transfer postVars from the UEL
-      ! onto the overlaying mesh for viewing. Note that an offset of
-      ! elemOffset is used between the real mesh and the overlaying mesh.
-
-      use global_parameters
-
-      INCLUDE 'ABA_PARAM.INC'
-
-      CHARACTER*80 CMNAME,ORNAME
-      CHARACTER*3 FLGRAY(15)
-      DIMENSION UVAR(NUVARM),DIRECT(3,3),T(3,3),TIME(2)
-      DIMENSION ARRAY(15),JARRAY(15),JMAC(*),JMATYP(*),COORD(*)
-
-      ! the dimensions of the variables FLGRAY, ARRAY and JARRAY
-      ! must be set equal to or greater than 15.
-      !write(6,*) "check pint 3, noel,numElem=",noel,numElem
-	  write(6,*) 'check point 00noel=',noel
-      uvar(1:nuvarm) = globalPostVars(noel-numElem,npt,1:nuvarm)
-	  write(6,*) 'check point 0'
-      return
-
-      end subroutine UVARM  
+!________________________________________________________________________    
       SUBROUTINE UEL(RHS,AMATRX,SVARS,ENERGY,ndofel,NRHS,nsvars,
      *     PROPS,npropse,COORDS,mcrd,nnode,U,DU,V,A,JTYPE,TIME,DTIME,
      *     KSTEP,kinc,jelem,PARAMS,NDLOAD,JDLTYP,ADLMAG,PREDEF,
@@ -64,16 +30,16 @@
       CALL ISOTROPIC(SVARS,PROPS,COORDS,U,AMATRX,RHS,nsvars,
      *                    npropse,mcrd,nnode,ndofel,mlvarx,kinc,jelem)
       
+      
       END SUBROUTINE UEL
 ! ////////////////////////////////////////////////////////////////////////    
       
 ! Calculating AMATRX and RHS
       SUBROUTINE ISOTROPIC(SVARS,PROPS,COORDS,U,AMATRX,RHS,nsvars,
      *      npropse,mcrd,nnode,ndofel,mlvarx,kinc,jelem)
-	 use global_parameters
       IMPLICIT NONE
       INTEGER nsvars,npropse,mcrd,nnode,ndofel,mlvarx,kinc,jelem,
-     * ipt,i,j,k,l, nint,nPostVars
+     * ipt,i,j,k,l
       REAL(8) SVARS(nsvars),PROPS(npropse),COORDS(mcrd,nnode),U(ndofel),
      * AMATRX(ndofel,ndofel),RHS(8,1),
      * xi, eta, GAUSS(nnode,2),det_J,WEIGHT(nnode),
@@ -95,13 +61,6 @@
       G=PROPS(3);
       nu=PROPS(4);
       thck=PROPS(5)                 ! Material parameters
-	  
-	  numElem = props(7)
-	  nInt = props(8)
-      nPostVars = props(9)
-	  if (.not. allocated(globalPostVars)) then
-        allocate(globalPostVars(numElem,nInt,nPostVars))
-	  endif
       
       
       CALL CONSTITUTIVE_MATRX(Ex,Ey,G,nu,D)                        ! Materials stiffness matrix
@@ -130,12 +89,6 @@
           CALL UMATMUL(Kuu11,Bu,Kuu12,8,8,3)
           Kuu1 = Kuu12*det_J*WEIGHT(ipt)*WEIGHT(ipt)*thck
           Kuu = Kuu+Kuu1
-		  
-		  globalPostVars(JELEM,ipt,1)= STRESS(1,1);
-		  globalPostVars(JELEM,ipt,2)= STRESS(2,1);
-		  globalPostVars(JELEM,ipt,3)= STRESS(3,1);
-		  
-		  write(6,*) 'check point 1'
 
           ! Internal forces
           ! --------------------- Ru -----------------------
@@ -253,7 +206,6 @@
       !D(3,3)=G
       !D(1,2)=Ex/((1.d0+nu)*(1.d0-2.d0*nu))*nu
       !D(2,1)=Ey/((1.d0+nu)*(1.d0-2.d0*nu))*nu
-      !Modify the isotropic D-matrix to orthogonal anisotropy
       END SUBROUTINE CONSTITUTIVE_MATRX
 !______________________________________________________________________ 
 
